@@ -25,7 +25,8 @@ def build_dc_classifier():#mnist
         Flatten(),
         nn.Linear(1152, 1024),
         nn.LeakyReLU(0.02),
-        nn.Linear(1024, 1)
+        nn.Linear(1024, 1),
+        nn.Sigmoid()
     )
 
 

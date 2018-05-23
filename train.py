@@ -16,7 +16,7 @@ from utils import *
 dtype = torch.FloatTensor
 # dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
 
-def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, num_epochs = 10, d_iter = 1):
+def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, Generator_input = 100, num_epochs = 10, d_iter = 1):
     if torch.cuda.is_available():
         IS_CUDA = True
     NumberOfGenerators = len(Generators)
@@ -54,6 +54,7 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
             i = 0
             GeneratorLoss = []
             for each, each_opt in zip(Generators, G_Optimizers):
+                # print('Training Gen:', i)
                 Z_noise = var(torch.randn(batch_size, Generator_input))
                 G_fake = each(Z_noise)
                 #print G_fake1.shape
