@@ -19,7 +19,7 @@ from utils import *
 dtype = torch.FloatTensor
 dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
 
-def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, path = './output/', Generator_input = 128, num_epochs = 10, d_iter = 1):
+def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, path = './output/', Generator_input = 64, num_epochs = 10, d_iter = 1):
     if torch.cuda.is_available():
         IS_CUDA = True
     NumberOfGenerators = len(Generators)

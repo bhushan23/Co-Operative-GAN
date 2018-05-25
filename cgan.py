@@ -21,8 +21,8 @@ import data_loader
 import train
 
 path = './data'
-list_lrates = [0.1, 0.01, 0.001, 0.0001]
-list_optimizers = ['Adam', 'SGD', 'Adadelta', 'RMSprop']
+list_lrates = [0.001] #, 0.01, 0.001, 0.0001]
+list_optimizers = ['Adam'] #, 'SGD', 'Adadelta', 'RMSprop']
 batch_size = 64
 dtype = torch.FloatTensor
 dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
@@ -55,4 +55,4 @@ for lr in list_lrates:
         config.append([lr, opt])
 
 BestPerformingGenerator = randint(0, num_gens-1)
-BestPerformingGenerator = train.train(data_loader, discriminator, D_opt, BestPerformingGenerator, generators, optimizers, config, lossManager, lossCriterion, batch_size)
+BestPerformingGenerator = train.train(data_loader, discriminator, D_opt, BestPerformingGenerator, generators, optimizers, config, lossManager, lossCriterion, batch_size, num_epochs = 200)
