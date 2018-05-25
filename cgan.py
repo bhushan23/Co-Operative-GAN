@@ -37,7 +37,7 @@ data_loader = data_loader.load_mnist_dataset(path)
 generators = []
 optimizers = []
 config     = []
-discriminator = models.build_dc_classifier().type(dtype)
+discriminator = models.Discriminator.type(dtype)
 #discriminator.apply(models.initialize_weights)
 discriminator = discriminator.cuda(0)
 lossManager = LossModule(numberOfGens = num_gens)
@@ -47,7 +47,7 @@ D_opt = torch.optim.Adam(discriminator.parameters(), lr = 0.0001)
 # Make the generators
 for lr in list_lrates:
     for opt in list_optimizers:
-        t_gen = models.build_dc_generator().type(dtype)
+        t_gen = models.Generator().type(dtype)
         t_gen = t_gen.cuda(0)
         # t_gen.apply(models.initialize_weights)
         generators.append(t_gen)

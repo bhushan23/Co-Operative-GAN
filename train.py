@@ -19,11 +19,11 @@ from utils import *
 dtype = torch.FloatTensor
 dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
 
-def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, path = './output/', Generator_input = 100, num_epochs = 10, d_iter = 1):
+def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, path = './output/', Generator_input = 128, num_epochs = 10, d_iter = 1):
     if torch.cuda.is_available():
         IS_CUDA = True
     NumberOfGenerators = len(Generators)
-    fixed_x = var(torch.randn(batch_size, 100))
+    fixed_x = var(torch.randn(batch_size, Generator_input))
     for epoch in range(num_epochs):
         lossList = [0.0] * NumberOfGenerators
         for data in data_loader:
@@ -31,7 +31,7 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
             mini_batch_size = image.shape[0]
             if mini_batch_size != batch_size:
                 continue
-            image = var(image.view(mini_batch_size, 1, 784))
+            image = var(image.view(mini_batch_size, -1))
             #image = var(image.view(image.size(0),  -1))
             # Train Discriminator
             # for k in range(0, d_iter):
@@ -39,7 +39,7 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
             # print(image.data.shape)
             D_real = Discriminator(image)
             # For Log(1 - D(G(Z)))
-            Z_noise = var(torch.randn(mini_batch_size, 100))
+            Z_noise = var(torch.randn(mini_batch_size, Generator_input))
             #print Z_noise.shape
             #print type(Gen)
             G_fake = Generators[BestPerformingGenerator](Z_noise) #each(Z_noise)
@@ -82,7 +82,7 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
         for i in range(0, NumberOfGenerators):
             if i != BestPerformingGenerator:
                 prev = Generators[i]
-                Generators[i] = models.build_dc_generator()
+                Generators[i] = models.Generator()
                 if IS_CUDA:
                     Generators[i].cuda(0)
                 Generators[i].load_state_dict(Generators[BestPerformingGenerator].state_dict())

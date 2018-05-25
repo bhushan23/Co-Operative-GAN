@@ -73,4 +73,25 @@ def initialize_weights(m):
     if isinstance(m, nn.Linear) or isinstance(m, nn.ConvTranspose2d):
         init.xavier_uniform(m.weight.data)
 
+Discriminator = nn.Sequential(
+            nn.Linear(784, 256),
+            nn.LeakyReLU(0.2),
+            nn.Linear(256, 256),
+            nn.LeakyReLU(0.2),
+            nn.Linear(256,1),
+            nn.Sigmoid())
 
+class Generator(nn.Module):
+    def __init__(self):
+        super(Generator, self).__init__()
+        self.fc1 = nn.Linear(128, 256)
+        self.fc2 = nn.Linear(256, 256)
+        self.fc3 = nn.Sequential(nn.Linear(256, 784), nn.Tanh())
+        self.lR = nn.LeakyReLU(0.2)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.lR(x)
+        x = self.fc2(x)
+        x = self.lR(x)
+        return self.fc3(x)
