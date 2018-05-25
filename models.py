@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch
 batch_size = 64
 dtype = torch.FloatTensor
-# dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
+dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
 ###  Model for MNIST
 
 def build_dc_classifier():#mnist
@@ -12,9 +12,6 @@ def build_dc_classifier():#mnist
     the architecture above.
     """
     return nn.Sequential(
-        ###########################
-        #########2nd TO DO (10 points)###########
-        ###########################
         Unflatten(batch_size, 1, 28, 28),
         nn.Conv2d(1, 36, 4, stride = 1),
         nn.LeakyReLU(0.02),
@@ -36,7 +33,6 @@ def build_dc_generator(noise_dim=100):#mnist
     the architecture described above.
     """
     return nn.Sequential(
-        #########3rd TO DO (10 points)###########
         nn.Linear(noise_dim, 1500),
         nn.ReLU(),
         nn.BatchNorm1d(1500),
@@ -76,3 +72,5 @@ class Unflatten(nn.Module):
 def initialize_weights(m):
     if isinstance(m, nn.Linear) or isinstance(m, nn.ConvTranspose2d):
         init.xavier_uniform(m.weight.data)
+
+

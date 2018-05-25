@@ -5,34 +5,41 @@ from torch.autograd import Variable
 from torchvision import datasets
 from torchvision import transforms
 import torchvision
+import matplotlib
+matplotlib.use('agg')
 import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.utils as tutils
 import imageio
 from PIL import Image
 import pickle
-
+import models
+import utils
 from utils import *
 dtype = torch.FloatTensor
-# dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
+dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
 
-def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, Generator_input = 100, num_epochs = 10, d_iter = 1):
+def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators, G_Optimizers, config, lossManager, lossCriterion, batch_size, path = './output/', Generator_input = 100, num_epochs = 10, d_iter = 1):
     if torch.cuda.is_available():
         IS_CUDA = True
     NumberOfGenerators = len(Generators)
-
+    fixed_x = var(torch.randn(batch_size, 100))
     for epoch in range(num_epochs):
         lossList = [0.0] * NumberOfGenerators
         for data in data_loader:
             image, _  = data
-            image = var(image.view(image.size(0),  -1))
-
+            mini_batch_size = image.shape[0]
+            if mini_batch_size != batch_size:
+                continue
+            image = var(image.view(mini_batch_size, 1, 784))
+            #image = var(image.view(image.size(0),  -1))
             # Train Discriminator
             # for k in range(0, d_iter):
             # for each in Generators:
+            # print(image.data.shape)
             D_real = Discriminator(image)
             # For Log(1 - D(G(Z)))
-            Z_noise = var(torch.randn(batch_size, 100))
+            Z_noise = var(torch.randn(mini_batch_size, 100))
             #print Z_noise.shape
             #print type(Gen)
             G_fake = Generators[BestPerformingGenerator](Z_noise) #each(Z_noise)
@@ -40,8 +47,8 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
             D_fake = Discriminator(G_fake)
 
             # Calculate Discriminator Loss
-            D_real_loss = lossCriterion(D_real, var(torch.ones(batch_size, 1)))
-            D_fake_loss = lossCriterion(D_fake, var(torch.zeros(batch_size, 1)))
+            D_real_loss = lossCriterion(D_real, var(torch.ones(mini_batch_size, 1)))
+            D_fake_loss = lossCriterion(D_fake, var(torch.zeros(mini_batch_size, 1)))
             D_loss = D_real_loss + D_fake_loss
 
             # Backprop Discriminator
@@ -61,7 +68,7 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
                 #print type(each)
                 D_fake = Discriminator(G_fake)
                 # Compute Generator Loss
-                G_loss = lossCriterion(D_fake, var(torch.ones(batch_size, 1)))
+                G_loss = lossCriterion(D_fake, var(torch.ones(mini_batch_size, 1)))
                 GeneratorLoss.append(G_loss)
                 lossList[i] += (float(G_loss.data[0]))
                 i = i + 1
@@ -75,9 +82,9 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
         for i in range(0, NumberOfGenerators):
             if i != BestPerformingGenerator:
                 prev = Generators[i]
-                Generators[i] = Generator()
+                Generators[i] = models.build_dc_generator()
                 if IS_CUDA:
-                    Generators[i].cuda()
+                    Generators[i].cuda(0)
                 Generators[i].load_state_dict(Generators[BestPerformingGenerator].state_dict())
                 G_Optimizers[i] =  get_optimizer(config[i][1], Generators[i], config[i][0])
                 # torch.optim.Adam(Generators[i].parameters(), lr = 0.0001)
@@ -92,7 +99,6 @@ def train(data_loader, Discriminator, D_opt, BestPerformingGenerator, Generators
         # lossManager.insertGeneratorList(GeneratorLoss)
         pic = Generators[BestPerformingGenerator](fixed_x)
         pic = denorm(pic.data)
-        outputImages.append(pic)
         #torchvision.utils.save_image(pic, path+'image_{}.png'.format(epoch))
-        save_image(pic, path+'image_{}.png'.format(epoch))
+        utils.save_image(pic, path+'image_{}.png'.format(epoch))
     return BestPerformingGenerator

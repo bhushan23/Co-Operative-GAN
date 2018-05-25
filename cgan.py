@@ -6,6 +6,8 @@ from torchvision import datasets
 from torchvision import transforms
 import torchvision
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import torchvision.utils as tutils
 import imageio
@@ -19,11 +21,11 @@ import data_loader
 import train
 
 path = './data'
-list_lrates = [0.1, 0.01, 0.001, 0.0001, 0.00001]
+list_lrates = [0.1, 0.01, 0.001, 0.0001]
 list_optimizers = ['Adam', 'SGD', 'Adadelta', 'RMSprop']
 batch_size = 64
 dtype = torch.FloatTensor
-# dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
+dtype = torch.cuda.FloatTensor ## UNCOMMENT THIS LINE IF YOU'RE ON A GPU!
 
 # Helper routines
 if torch.cuda.is_available():
@@ -37,7 +39,7 @@ optimizers = []
 config     = []
 discriminator = models.build_dc_classifier().type(dtype)
 #discriminator.apply(models.initialize_weights)
-
+discriminator = discriminator.cuda(0)
 lossManager = LossModule(numberOfGens = num_gens)
 lossCriterion = nn.BCELoss()
 D_opt = torch.optim.Adam(discriminator.parameters(), lr = 0.0001)
@@ -46,6 +48,7 @@ D_opt = torch.optim.Adam(discriminator.parameters(), lr = 0.0001)
 for lr in list_lrates:
     for opt in list_optimizers:
         t_gen = models.build_dc_generator().type(dtype)
+        t_gen = t_gen.cuda(0)
         # t_gen.apply(models.initialize_weights)
         generators.append(t_gen)
         optimizers.append(get_optimizer(opt, t_gen, lr))

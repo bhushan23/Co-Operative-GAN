@@ -4,7 +4,7 @@ from torchvision import transforms
 import torchvision
 import matplotlib
 from torch.autograd import Variable
-# matplotlib.use('agg')
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import torchvision.utils as tutils
 import imageio
@@ -17,7 +17,7 @@ if torch.cuda.is_available():
 
 def var(x):
     if torch.cuda.is_available():
-        x = x.cuda()
+        x = x.cuda(0)
     return Variable(x)
 
 def show(img):
